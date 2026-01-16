@@ -61,6 +61,22 @@
   border-color: var(--accent-color);
 }
 
+.githubLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  color: var(--text-muted);
+  border-radius: 6px;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.githubLink:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
 /* File Tabs */
 .tabBar {
   display: flex;
@@ -677,6 +693,24 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+}
+
+.expandCollapseBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.expandCollapseBtn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
 }
 
 .treePathLabel {
