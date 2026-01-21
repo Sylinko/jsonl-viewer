@@ -506,6 +506,10 @@ export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [listHeight, setListHeight] = useState(400);
   const [treePath, setTreePath] = useState<string | null>(null);
+  const listRef = useRef<List>(null);
+  const detailContentRef = useRef<HTMLDivElement>(null);
+
+
 
   // Copy to clipboard
   const handleCopy = useCallback(async (text: string) => {
@@ -674,6 +678,68 @@ export default function Home() {
     if (selectedId === null) return null;
     return lines.find(line => line.id === selectedId) || null;
   }, [lines, selectedId]);
+
+  const navigateSelection = useCallback((direction: 'up' | 'down') => {
+    if (displayLines.length === 0) return;
+
+    const currentIndex = selectedId 
+      ? displayLines.findIndex(line => line.id === selectedId)
+      : -1;
+    
+    let newIndex = -1;
+    if (direction === 'down') {
+      newIndex = currentIndex < displayLines.length - 1 ? currentIndex + 1 : currentIndex;
+      if (currentIndex === -1) newIndex = 0;
+    } else {
+      newIndex = currentIndex > 0 ? currentIndex - 1 : currentIndex;
+      if (currentIndex === -1) newIndex = 0;
+    }
+
+    if (newIndex !== -1 && newIndex !== currentIndex) {
+      setSelectedId(displayLines[newIndex].id);
+      if (listRef.current) {
+        listRef.current.scrollToItem(newIndex);
+      }
+    }
+  }, [displayLines, selectedId]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+        if (document.activeElement instanceof HTMLInputElement || document.activeElement instanceof HTMLTextAreaElement) {
+          return;
+        }
+        
+        const preElement = detailContentRef.current?.querySelector('pre');
+        if (preElement) {
+          e.preventDefault();
+          const range = document.createRange();
+          range.selectNodeContents(preElement);
+          const selection = window.getSelection();
+          if (selection) {
+            selection.removeAllRanges();
+            selection.addRange(range);
+          }
+        } else if (viewTab === 'tree') {
+          e.preventDefault();
+        }
+        return;
+      }
+
+      if (e.key === 'ArrowDown') {
+        if (document.activeElement instanceof HTMLInputElement) return;
+        e.preventDefault();
+        navigateSelection('down');
+      } else if (e.key === 'ArrowUp') {
+        if (document.activeElement instanceof HTMLInputElement) return;
+        e.preventDefault();
+        navigateSelection('up');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [navigateSelection, viewTab]);
 
   // Format JSON for pretty display
   const formatJson = useCallback((obj: unknown): string => {
@@ -878,6 +944,7 @@ export default function Home() {
               </div>
               <div className={styles.listContainer} ref={containerRef}>
                 <List
+                  ref={listRef}
                   height={listHeight}
                   itemCount={displayLines.length}
                   itemSize={36}
@@ -915,6 +982,24 @@ export default function Home() {
                       </button>
                     </div>
                     <div className={styles.headerRight}>
+                      <div style={{ display: 'flex', gap: '4px', marginRight: '8px' }}>
+                        <button 
+                          className={styles.copyBtn} 
+                          style={{ padding: '4px 8px' }}
+                          onClick={() => navigateSelection('up')}
+                          title="Previous (Up Arrow)"
+                        >
+                          ↑
+                        </button>
+                        <button 
+                          className={styles.copyBtn}
+                          style={{ padding: '4px 8px' }}
+                          onClick={() => navigateSelection('down')}
+                          title="Next (Down Arrow)"
+                        >
+                          ↓
+                        </button>
+                      </div>
                       {viewTab !== 'tree' && (
                         <button 
                           className={`${styles.copyBtn} ${copied ? styles.copied : ''}`}
@@ -936,7 +1021,7 @@ export default function Home() {
                       <span className={styles.detailId}>ID: {selectedLine.id}</span>
                     </div>
                   </div>
-                  <div className={styles.detailContent}>
+                  <div className={styles.detailContent} ref={detailContentRef}>
                     {selectedLine.error ? (
                       <div className={styles.errorMessage}>
                         <span className={styles.errorIcon}>⚠</span>
