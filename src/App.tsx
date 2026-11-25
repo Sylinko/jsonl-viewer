@@ -1,8 +1,6 @@
-"use client";
-
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { List, type ListImperativeAPI } from "react-window";
-import styles from "./page.module.css";
+import styles from "./App.module.css";
 import {
   ArrowDownAz,
   ArrowUpAz,
@@ -123,14 +121,14 @@ function TreeNode({
   };
 
   return (
-    <div className={styles.treeNode}>
+    <div className={styles["treeNode"]}>
       <div
-        className={`${styles.treeNodeRow} ${isSelected ? styles.treeNodeSelected : ""}`}
+        className={`${styles["treeNodeRow"]} ${isSelected ? styles["treeNodeSelected"] : ""}`}
         style={{ paddingLeft: depth * 16 + 8 }}
         onClick={handleClick}
       >
         {isExpandable ? (
-          <button className={styles.treeToggle} onClick={handleToggle}>
+          <button className={styles["treeToggle"]} onClick={handleToggle}>
             {isExpanded ? (
               <ChevronDown size={12} />
             ) : (
@@ -138,12 +136,12 @@ function TreeNode({
             )}
           </button>
         ) : (
-          <span className={styles.treeTogglePlaceholder} />
+          <span className={styles["treeTogglePlaceholder"]} />
         )}
-        <span className={`${styles.treeKey} mono`}>{keyName}</span>
-        <span className={styles.treeSeparator}>:</span>
+        <span className={`${styles["treeKey"]} mono`}>{keyName}</span>
+        <span className={styles["treeSeparator"]}>:</span>
         <span
-          className={`${styles.treeValue} ${styles[`treeValue_${valueType}`]} mono`}
+          className={`${styles["treeValue"]} ${styles[`treeValue_${valueType}`]} mono`}
         >
           {getValuePreview(value)}
         </span>
@@ -212,10 +210,10 @@ function getValueAtPath(data: unknown, path: string): unknown | undefined {
     const arrayMatch = current.match(/^\[(\d+)\]/);
     const propMatch = current.match(/^\.?([^.[]+)/);
 
-    if (arrayMatch) {
+    if (arrayMatch?.[1]) {
       parts.push(arrayMatch[1]);
       current = current.slice(arrayMatch[0].length);
-    } else if (propMatch) {
+    } else if (propMatch?.[1]) {
       parts.push(propMatch[1]);
       current = current.slice(propMatch[0].length);
     } else {
@@ -375,16 +373,16 @@ function TreeView({ data, externalSelectedPath, onPathChange }: TreeViewProps) {
   }, [selectedValue]);
 
   if (data === null || typeof data !== "object") {
-    return <div className={styles.treeEmpty}>Not an object or array</div>;
+    return <div className={styles["treeEmpty"]}>Not an object or array</div>;
   }
 
   return (
-    <div className={styles.treeViewContainer}>
-      <div className={styles.treePanel}>
-        <div className={styles.treePanelHeader}>
+    <div className={styles["treeViewContainer"]}>
+      <div className={styles["treePanel"]}>
+        <div className={styles["treePanelHeader"]}>
           <span>Structure</span>
           <button
-            className={styles.expandCollapseBtn}
+            className={styles["expandCollapseBtn"]}
             onClick={handleExpandCollapseAll}
             title={isAllExpanded ? "Collapse All" : "Expand All"}
           >
@@ -395,7 +393,7 @@ function TreeView({ data, externalSelectedPath, onPathChange }: TreeViewProps) {
             )}
           </button>
         </div>
-        <div className={styles.treePanelContent}>
+        <div className={styles["treePanelContent"]}>
           <TreeNode
             keyName="root"
             value={data}
@@ -408,19 +406,19 @@ function TreeView({ data, externalSelectedPath, onPathChange }: TreeViewProps) {
           />
         </div>
       </div>
-      <div className={styles.treeValuePanel}>
-        <div className={styles.treePanelHeader}>
+      <div className={styles["treeValuePanel"]}>
+        <div className={styles["treePanelHeader"]}>
           <span>
             Value{" "}
             {selectedPath && (
-              <span className={`${styles.treePathLabel} mono`}>
+              <span className={`${styles["treePathLabel"]} mono`}>
                 {selectedPath}
               </span>
             )}
           </span>
           {selectedValue !== null && (
             <button
-              className={`${styles.copyBtn} ${copied ? styles.copied : ""}`}
+              className={`${styles["copyBtn"]} ${copied ? styles["copied"] : ""}`}
               onClick={() => handleCopy(formattedValue)}
             >
               {copied ? <Check size={14} /> : <Copy size={14} />}
@@ -428,13 +426,13 @@ function TreeView({ data, externalSelectedPath, onPathChange }: TreeViewProps) {
             </button>
           )}
         </div>
-        <div className={styles.treeValueContent}>
+        <div className={styles["treeValueContent"]}>
           {selectedValue !== null ? (
-            <pre className={`${styles.treeValuePre} mono`}>
+            <pre className={`${styles["treeValuePre"]} mono`}>
               {formattedValue}
             </pre>
           ) : (
-            <div className={styles.treeValueEmpty}>
+            <div className={styles["treeValueEmpty"]}>
               Click a node to view its value
             </div>
           )}
@@ -451,13 +449,13 @@ function JsonSyntaxHighlight({ json }: { json: string }) {
     let i = 0;
 
     while (i < text.length) {
-      const char = text[i];
+      const char = text.charAt(i);
 
       // Whitespace
       if (/\s/.test(char)) {
         let ws = "";
-        while (i < text.length && /\s/.test(text[i])) {
-          ws += text[i++];
+        while (i < text.length && /\s/.test(text.charAt(i))) {
+          ws += text.charAt(i++);
         }
         tokens.push({ type: "whitespace", value: ws });
         continue;
@@ -467,18 +465,18 @@ function JsonSyntaxHighlight({ json }: { json: string }) {
       if (char === '"') {
         let str = '"';
         i++;
-        while (i < text.length && text[i] !== '"') {
-          if (text[i] === "\\" && i + 1 < text.length) {
-            str += text[i++];
+        while (i < text.length && text.charAt(i) !== '"') {
+          if (text.charAt(i) === "\\" && i + 1 < text.length) {
+            str += text.charAt(i++);
           }
-          str += text[i++];
+          str += text.charAt(i++);
         }
-        if (i < text.length) str += text[i++];
+        if (i < text.length) str += text.charAt(i++);
 
         // Check if it's a key (followed by :)
         let j = i;
-        while (j < text.length && /\s/.test(text[j])) j++;
-        const isKey = text[j] === ":";
+        while (j < text.length && /\s/.test(text.charAt(j))) j++;
+        const isKey = text.charAt(j) === ":";
         tokens.push({ type: isKey ? "key" : "string", value: str });
         continue;
       }
@@ -486,8 +484,8 @@ function JsonSyntaxHighlight({ json }: { json: string }) {
       // Number
       if (/[-\d]/.test(char)) {
         let num = "";
-        while (i < text.length && /[-\d.eE+]/.test(text[i])) {
-          num += text[i++];
+        while (i < text.length && /[-\d.eE+]/.test(text.charAt(i))) {
+          num += text.charAt(i++);
         }
         tokens.push({ type: "number", value: num });
         continue;
@@ -528,7 +526,7 @@ function JsonSyntaxHighlight({ json }: { json: string }) {
   const tokens = highlightJson(json);
 
   return (
-    <pre className={`${styles.prettyContent} mono`}>
+    <pre className={`${styles["prettyContent"]} mono`}>
       {tokens.map((token, idx) => (
         <span
           key={idx}
@@ -545,7 +543,9 @@ function JsonSyntaxHighlight({ json }: { json: string }) {
   );
 }
 
-export default function Home() {
+const LINE_SIZE_KEY = "jsonlViewer.showLineSize";
+
+export default function App() {
   const [files, setFiles] = useState<FileData[]>([]);
   const [activeFileId, setActiveFileId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -597,20 +597,21 @@ export default function Home() {
   }, []);
 
   // Line-size visibility toggle (persisted to localStorage)
-  const STORAGE_KEY = "jsonlViewer.showLineSize";
-
-  const [showLineSize, setShowLineSize] = useState<boolean>(true);
-
-  // Hydrate from localStorage after mount to avoid SSR mismatch
-  useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved !== null) {
-      setShowLineSize(saved === "true");
+  const [showLineSize, setShowLineSize] = useState(() => {
+    try {
+      const saved = localStorage.getItem(LINE_SIZE_KEY);
+      return saved === null || saved === "true";
+    } catch {
+      return true;
     }
-  }, []);
+  });
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, String(showLineSize));
+    try {
+      localStorage.setItem(LINE_SIZE_KEY, String(showLineSize));
+    } catch {
+      // Keep the preference in memory if the browser blocks storage.
+    }
   }, [showLineSize]);
 
   // Copy to clipboard
@@ -773,12 +774,8 @@ export default function Home() {
         if (activeFileId === fileId) {
           // Switch to another tab or clear
           const idx = prev.findIndex((f) => f.id === fileId);
-          if (newFiles.length > 0) {
-            const newActiveIdx = Math.min(idx, newFiles.length - 1);
-            setActiveFileId(newFiles[newActiveIdx].id);
-          } else {
-            setActiveFileId(null);
-          }
+          const newActiveIdx = Math.min(idx, newFiles.length - 1);
+          setActiveFileId(newFiles[newActiveIdx]?.id ?? null);
           setSelectedId(null);
         }
         return newFiles;
@@ -828,7 +825,7 @@ export default function Home() {
         ? displayLines.findIndex((line) => line.id === selectedId)
         : -1;
 
-      let newIndex = -1;
+      let newIndex: number;
       if (direction === "down") {
         newIndex =
           currentIndex < displayLines.length - 1
@@ -840,8 +837,9 @@ export default function Home() {
         if (currentIndex === -1) newIndex = 0;
       }
 
-      if (newIndex !== -1 && newIndex !== currentIndex) {
-        setSelectedId(displayLines[newIndex].id);
+      const nextLine = displayLines[newIndex];
+      if (nextLine && newIndex !== currentIndex) {
+        setSelectedId(nextLine.id);
         if (listRef.current) {
           listRef.current.scrollToRow({ index: newIndex });
         }
@@ -915,22 +913,23 @@ export default function Home() {
       };
     }) => {
       const line = displayLines[index];
+      if (!line) return null;
       const isSelected = selectedId === line.id;
 
       return (
         <div
           style={style}
-          className={`${styles.listItem} ${isSelected ? styles.listItemSelected : ""} ${line.error ? styles.listItemError : ""}`}
+          className={`${styles["listItem"]} ${isSelected ? styles["listItemSelected"] : ""} ${line.error ? styles["listItemError"] : ""}`}
           onClick={() => setSelectedId(line.id)}
         >
-          <span className={styles.listItemId}>{line.id}</span>
-          <span className={`${styles.listItemContent} mono`}>
+          <span className={styles["listItemId"]}>{line.id}</span>
+          <span className={`${styles["listItemContent"]} mono`}>
             {line.raw.length > 200
               ? line.raw.substring(0, 200) + "..."
               : line.raw}
           </span>
           {showLineSize && (
-            <span className={styles.listItemSize}>
+            <span className={styles["listItemSize"]}>
               {formatBytes(line.size)}
             </span>
           )}
@@ -955,15 +954,15 @@ export default function Home() {
 
   return (
     <main
-      className={styles.main}
+      className={styles["main"]}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
       {/* Drag overlay */}
       {isDragging && (
-        <div className={styles.dragOverlay}>
-          <div className={styles.dragOverlayContent}>
+        <div className={styles["dragOverlay"]}>
+          <div className={styles["dragOverlayContent"]}>
             <FileUp size={48} />
             <p>Drop file to add new tab</p>
           </div>
@@ -971,18 +970,18 @@ export default function Home() {
       )}
 
       {/* Header */}
-      <header className={styles.header}>
-        <div className={styles.headerLeft}>
-          <h1 className={styles.logo}>
-            <span className={styles.logoIcon}>{"{}"}</span>
+      <header className={styles["header"]}>
+        <div className={styles["headerLeft"]}>
+          <h1 className={styles["logo"]}>
+            <span className={styles["logoIcon"]}>{"{}"}</span>
             <span>JSONL Viewer</span>
           </h1>
         </div>
 
-        <div className={styles.headerRight}>
+        <div className={styles["headerRight"]}>
           {files.length > 0 && (
             <>
-              <label className={styles.addFileBtn}>
+              <label className={styles["addFileBtn"]}>
                 <svg
                   viewBox="0 0 24 24"
                   width="16"
@@ -1005,16 +1004,16 @@ export default function Home() {
               </label>
               {/* Global toggle: Show line size */}
               <button
-                className={styles.lineSizeToggle}
+                className={styles["lineSizeToggle"]}
                 onClick={() => setShowLineSize((prev) => !prev)}
                 title={showLineSize ? "Hide Line Sizes" : "Show Line Sizes"}
                 aria-pressed={showLineSize}
               >
-                <span className={styles.lineSizeToggleLabel}>Show Line Size</span>
+                <span className={styles["lineSizeToggleLabel"]}>Show Line Size</span>
                 <span
-                  className={`${styles.lineSizeToggleTrack} ${showLineSize ? styles.lineSizeToggleTrackOn : ""}`}
+                  className={`${styles["lineSizeToggleTrack"]} ${showLineSize ? styles["lineSizeToggleTrackOn"] : ""}`}
                 >
-                  <span className={styles.lineSizeToggleThumb} />
+                  <span className={styles["lineSizeToggleThumb"]} />
                 </span>
               </button>
             </>
@@ -1024,7 +1023,7 @@ export default function Home() {
             href="https://github.com/Sylinko/jsonl-viewer"
             target="_blank"
             rel="noopener noreferrer"
-            className={styles.githubLink}
+            className={styles["githubLink"]}
             title="View on GitHub"
           >
             <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
@@ -1036,20 +1035,20 @@ export default function Home() {
 
       {/* File Tabs */}
       {files.length > 0 && (
-        <div className={styles.tabBar}>
+        <div className={styles["tabBar"]}>
           {files.map((file) => (
             <div
               key={file.id}
-              className={`${styles.fileTab} ${file.id === activeFileId ? styles.fileTabActive : ""}`}
+              className={`${styles["fileTab"]} ${file.id === activeFileId ? styles["fileTabActive"] : ""}`}
               onClick={() => {
                 setActiveFileId(file.id);
                 setSelectedId(null);
               }}
             >
-              <span className={styles.fileTabName}>{file.name}</span>
-              <span className={styles.fileTabCount}>{file.lines.length}</span>
+              <span className={styles["fileTabName"]}>{file.name}</span>
+              <span className={styles["fileTabCount"]}>{file.lines.length}</span>
               <button
-                className={styles.fileTabClose}
+                className={styles["fileTabClose"]}
                 onClick={(e) => closeFile(file.id, e)}
                 title="Close tab"
               >
@@ -1061,21 +1060,21 @@ export default function Home() {
       )}
 
       {/* Content Area */}
-      <div className={styles.content}>
+      <div className={styles["content"]}>
         {files.length === 0 ? (
           /* Drop Zone */
           <div
-            className={`${styles.dropZone} ${isDragging ? styles.dropZoneActive : ""}`}
+            className={`${styles["dropZone"]} ${isDragging ? styles["dropZoneActive"] : ""}`}
           >
-            <div className={styles.dropContent}>
-              <div className={styles.dropIcon}>
+            <div className={styles["dropContent"]}>
+              <div className={styles["dropIcon"]}>
                 <FileUp size={56} />
               </div>
-              <p className={styles.dropText}>
+              <p className={styles["dropText"]}>
                 Drag & drop a <strong>.jsonl</strong> file here
               </p>
-              <p className={styles.dropSubtext}>or</p>
-              <label className={styles.browseBtn}>
+              <p className={styles["dropSubtext"]}>or</p>
+              <label className={styles["browseBtn"]}>
                 Browse Files
                 <input
                   type="file"
@@ -1089,38 +1088,38 @@ export default function Home() {
           </div>
         ) : (
           /* Split View */
-          <div className={styles.splitView} ref={splitViewRef}>
+          <div className={styles["splitView"]} ref={splitViewRef}>
             {/* Left Panel - List */}
             <div
-              className={styles.leftPanel}
+              className={styles["leftPanel"]}
               style={leftPanelWidth !== null ? { width: leftPanelWidth } : undefined}
             >
-              <div className={styles.panelHeader}>
+              <div className={styles["panelHeader"]}>
                 <span>Objects</span>
-                <div className={styles.leftPanelControls}>
-                  <div className={styles.filterBarInline}>
+                <div className={styles["leftPanelControls"]}>
+                  <div className={styles["filterBarInline"]}>
                     <Search size={14} />
                     <input
                       type="text"
-                      className={styles.filterInputInline}
+                      className={styles["filterInputInline"]}
                       placeholder="Filter..."
                       value={filter}
                       onChange={(e) => setFilter(e.target.value)}
                     />
                     {filter && (
                       <button
-                        className={styles.clearFilterInline}
+                        className={styles["clearFilterInline"]}
                         onClick={() => setFilter("")}
                       >
                         ✕
                       </button>
                     )}
                   </div>
-                  <span className={styles.filterCountInline}>
+                  <span className={styles["filterCountInline"]}>
                     {displayLines.length}/{lines.length}
                   </span>
                   <button
-                    className={styles.sortBtn}
+                    className={styles["sortBtn"]}
                     onClick={() =>
                       setSortOrder(sortOrder === "asc" ? "desc" : "asc")
                     }
@@ -1134,7 +1133,7 @@ export default function Home() {
                   </button>
                 </div>
               </div>
-              <div className={styles.listContainer} ref={containerRef}>
+              <div className={styles["listContainer"]} ref={containerRef}>
                 <List
                   listRef={listRef}
                   style={{ height: listHeight }}
@@ -1149,36 +1148,36 @@ export default function Home() {
 
             {/* Resizer handle */}
             <div
-              className={styles.resizer}
+              className={styles["resizer"]}
               onMouseDown={handleResizeStart}
             />
 
             {/* Right Panel - Detail */}
-            <div className={styles.rightPanel}>
+            <div className={styles["rightPanel"]}>
               {selectedLine ? (
                 <>
-                  <div className={styles.panelHeader}>
-                    <div className={styles.tabs}>
+                  <div className={styles["panelHeader"]}>
+                    <div className={styles["tabs"]}>
                       <button
-                        className={`${styles.tab} ${viewTab === "pretty" ? styles.tabActive : ""}`}
+                        className={`${styles["tab"]} ${viewTab === "pretty" ? styles["tabActive"] : ""}`}
                         onClick={() => setViewTab("pretty")}
                       >
                         Pretty
                       </button>
                       <button
-                        className={`${styles.tab} ${viewTab === "raw" ? styles.tabActive : ""}`}
+                        className={`${styles["tab"]} ${viewTab === "raw" ? styles["tabActive"] : ""}`}
                         onClick={() => setViewTab("raw")}
                       >
                         Raw
                       </button>
                       <button
-                        className={`${styles.tab} ${viewTab === "tree" ? styles.tabActive : ""}`}
+                        className={`${styles["tab"]} ${viewTab === "tree" ? styles["tabActive"] : ""}`}
                         onClick={() => setViewTab("tree")}
                       >
                         Tree
                       </button>
                     </div>
-                    <div className={styles.headerRight}>
+                    <div className={styles["headerRight"]}>
                       <div
                         style={{
                           display: "flex",
@@ -1187,7 +1186,7 @@ export default function Home() {
                         }}
                       >
                         <button
-                          className={`${styles.copyBtn} ${isAtFirst ? styles.disabledBtn : ""}`}
+                          className={`${styles["copyBtn"]} ${isAtFirst ? styles["disabledBtn"] : ""}`}
                           style={{ padding: "6px" }}
                           onClick={() => navigateSelection("up")}
                           disabled={isAtFirst}
@@ -1196,7 +1195,7 @@ export default function Home() {
                           <ArrowUp size={14} />
                         </button>
                         <button
-                          className={`${styles.copyBtn} ${isAtLast ? styles.disabledBtn : ""}`}
+                          className={`${styles["copyBtn"]} ${isAtLast ? styles["disabledBtn"] : ""}`}
                           style={{ padding: "6px" }}
                           onClick={() => navigateSelection("down")}
                           disabled={isAtLast}
@@ -1207,7 +1206,7 @@ export default function Home() {
                       </div>
                       {viewTab !== "tree" && (
                         <button
-                          className={`${styles.copyBtn} ${copied ? styles.copied : ""}`}
+                          className={`${styles["copyBtn"]} ${copied ? styles["copied"] : ""}`}
                           onClick={() =>
                             handleCopy(
                               viewTab === "raw"
@@ -1220,22 +1219,22 @@ export default function Home() {
                           {copied ? "Copied!" : "Copy"}
                         </button>
                       )}
-                      <span className={styles.detailId}>
+                      <span className={styles["detailId"]}>
                         ID: {selectedLine.id}
                       </span>
                     </div>
                   </div>
-                  <div className={styles.detailContent} ref={detailContentRef}>
+                  <div className={styles["detailContent"]} ref={detailContentRef}>
                     {selectedLine.error ? (
-                      <div className={styles.errorMessage}>
-                        <span className={styles.errorIcon}>⚠</span>
+                      <div className={styles["errorMessage"]}>
+                        <span className={styles["errorIcon"]}>⚠</span>
                         <span>{selectedLine.error}</span>
-                        <pre className={`${styles.rawContent} mono`}>
+                        <pre className={`${styles["rawContent"]} mono`}>
                           {selectedLine.raw}
                         </pre>
                       </div>
                     ) : viewTab === "raw" ? (
-                      <pre className={`${styles.rawContent} mono`}>
+                      <pre className={`${styles["rawContent"]} mono`}>
                         {selectedLine.raw}
                       </pre>
                     ) : viewTab === "tree" ? (
@@ -1252,7 +1251,7 @@ export default function Home() {
                   </div>
                 </>
               ) : (
-                <div className={styles.emptyDetail}>
+                <div className={styles["emptyDetail"]}>
                   <File size={64} />
                   <p>Select an object to view details</p>
                 </div>

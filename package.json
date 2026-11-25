@@ -1,25 +1,35 @@
 {
   "name": "jsonl-viewer",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "dev": "cf dev --port 3000",
+    "build": "cf build",
+    "preview": "vite preview",
+    "start": "vite preview --port 3000",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --max-warnings 0"
   },
   "dependencies": {
     "lucide-react": "^1.33.0",
-    "next": "^16.3.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "react-window": "2.3.0"
+    "react-window": "2.3.0",
+    "workbox-window": "^7.4.1"
   },
   "devDependencies": {
-    "@ducanh2912/next-pwa": "^10.2.9",
+    "@cloudflare/vite-plugin": "2.0.0-rc.5",
+    "@eslint/js": "^10.0.1",
     "@types/node": "^26.2.0",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
-    "typescript": "^7.0.2"
+    "@vitejs/plugin-react": "^6.3.0",
+    "cf": "1.0.0-rc.5",
+    "eslint": "^10.15.0",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.73.0",
+    "vite": "^8.3.8",
+    "vite-plugin-pwa": "^2.0.0"
   },
-  "packageManager": "pnpm@11.22.0"
+  "packageManager": "pnpm@12.21.0"
 }

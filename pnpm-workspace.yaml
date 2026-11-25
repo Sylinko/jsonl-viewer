@@ -1,4 +1,11 @@
 allowBuilds:
-  sharp: true
+  workerd: true
+# This assets-only app doesn't use Miniflare's local image transformations.
+overrides:
+  'miniflare>sharp': '-'
 minimumReleaseAgeExclude:
   - lucide-react@1.33.0
+  - '@cloudflare/runtime-types@0.1.34'
+  - '@cloudflare/vite-plugin@2.0.0-rc.5'
+  - cf@1.0.0-rc.5
+  - miniflare@5.20261123.1-beta

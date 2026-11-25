@@ -1,10 +1,10 @@
 # JSONL Viewer
 
-A high-performance JSONL file viewer built with Next.js, optimized for log analysis.
+A high-performance JSONL file viewer built with Vite and React, optimized for log analysis.
 
 ## Features
 
-- **PWA Support** — Install as a native app on any device
+- **PWA Support** — Install on supported browsers and use offline after the first visit
 - **Drag & Drop** — Simply drag `.jsonl` files onto the page to open
 - **Multi-Tab** — Open multiple files in tabs, switch between them freely
 - **Virtual Scrolling** — Handle large files with thousands of lines efficiently via react-window
@@ -27,11 +27,13 @@ pnpm dev
 # Build for production
 pnpm build
 
-# Start production server
+# Preview the production build
 pnpm start
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to use the viewer.
+
+Before deploying, run `pnpm typecheck`, `pnpm lint`, and `pnpm build`. Validate the build locally with `pnpm exec cf deploy --prebuilt --dry-run`. When ready to publish, run `pnpm exec cf deploy --prebuilt`.
 
 ## Usage
 
@@ -45,10 +47,10 @@ Open [http://localhost:3000](http://localhost:3000) to use the viewer.
 
 ## Tech Stack
 
-- **Next.js 16** — React framework with App Router and Turbopack
+- **Vite 8** — Development server and production build tool
 - **React 19** — UI library
 - **react-window 2** — Virtualized list for high-performance rendering
-- **next-pwa** — Progressive Web App support
+- **vite-plugin-pwa** — Progressive Web App support
 - **TypeScript 6** — Type safety
 - **pnpm** — Package manager
 
