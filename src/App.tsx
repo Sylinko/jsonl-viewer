@@ -1,5 +1,8 @@
-import { useState, useCallback, useMemo, useRef, useEffect } from "react";
+import { useState, useCallback, useMemo, useRef, useEffect, useEffectEvent } from "react";
+import { flushSync } from "react-dom";
 import { List, type ListImperativeAPI } from "react-window";
+import type { JsonLine, FileData, ViewTab } from "./viewer-types";
+import { getModelContext, registerViewerTools, type ViewerState } from "./webmcp";
 import styles from "./App.module.css";
 import {
   ArrowDownAz,
@@ -16,24 +19,6 @@ import {
   ArrowUp,
   ArrowDown,
 } from "lucide-react";
-
-interface JsonLine {
-  id: number;
-  raw: string;
-  parsed: unknown | null;
-  size: number;
-  error?: string;
-}
-
-interface FileData {
-  id: string;
-  name: string;
-  lines: JsonLine[];
-  filter: string; // Per-file filter
-  sortOrder: "asc" | "desc"; // Per-file sort order
-}
-
-type ViewTab = "raw" | "pretty" | "tree";
 
 // Format byte size
 function formatBytes(bytes: number): string {
@@ -847,6 +832,38 @@ export default function App() {
     },
     [displayLines, selectedId],
   );
+
+  // Keep registrations stable while callbacks read the latest committed UI state.
+  const getViewer = useEffectEvent((): ViewerState => ({
+    files,
+    activeFileId,
+    selectedId,
+    viewTab,
+    displayLines,
+    selectFile: (fileId) => {
+      flushSync(() => {
+        setActiveFileId(fileId);
+        setSelectedId(null);
+      });
+    },
+    setFilter: (query) => flushSync(() => setFilter(query)),
+    selectEntry: (id, view) => {
+      flushSync(() => {
+        setSelectedId(id);
+        setViewTab(view);
+      });
+      listRef.current?.scrollToRow({
+        index: displayLines.findIndex((line) => line.id === id),
+      });
+    },
+  }));
+
+  useEffect(() => {
+    const modelContext = getModelContext();
+    if (!modelContext) return;
+    const controller = registerViewerTools(modelContext, getViewer);
+    return () => controller.abort();
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
